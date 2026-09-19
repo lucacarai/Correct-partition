@@ -1,0 +1,35 @@
+# Decision log
+
+These are provisional decisions derived from the initial technical guidance.
+They can change when the requirements make a different choice clearly better.
+
+| ID    | Status      | Decision                                                                                                                                                   | Reason                                                                                                                                                                      |
+| ----- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-001 | Provisional | Build a browser-based app with React, TypeScript, and Vite.                                                                                                | A tight local edit-run-inspect loop and straightforward static deployment suit an interactive visualization.                                                                |
+| D-002 | Provisional | Use SVG for the Hasse diagram, nodes, edges, labels, and partition boundaries.                                                                             | SVG keeps mathematical objects inspectable and supports precise interaction and animation.                                                                                  |
+| D-003 | Provisional | Keep mathematics, layout, and animation as separate concerns.                                                                                              | The partition algorithm must be testable independently of visual behavior.                                                                                                  |
+| D-004 | Provisional | Model computation as an ordered trace of partition states with merge explanations.                                                                         | This directly supports play, pause, stepping, and mathematical inspection.                                                                                                  |
+| D-005 | Provisional | Prefer a custom deterministic layout; evaluate a DAG layout library only if arbitrary posets demand it.                                                    | Structured posets can often be laid out more clearly from their ranks than by a generic engine.                                                                             |
+| D-006 | Provisional | Start as a client-only static app.                                                                                                                         | No backend or database is needed unless later requirements introduce persistence, collaboration, or server-only computation.                                                |
+| D-007 | Accepted    | Use a fixed finite poset in the first version.                                                                                                             | User-supplied posets are outside the initial scope.                                                                                                                         |
+| D-008 | Accepted    | Animate from the identity relation through only correct, color-preserving equivalence relations.                                                           | Every visible state should represent a valid stage of the mathematical construction.                                                                                        |
+| D-009 | Accepted    | Target the greatest relation under inclusion, equivalently the coarsest admissible partition.                                                              | This is the requested largest correct partition preserving the coloring.                                                                                                    |
+| D-010 | Accepted    | Use the coordinates from the supplied TikZ diagram as a deterministic custom layout.                                                                       | The fixed poset already has an intended three-column geometry, so an automatic graph-layout dependency is unnecessary.                                                      |
+| D-011 | Accepted    | Treat all 37 TikZ arrows as covers and the unlabeled bottom-center source as the twenty-first element.                                                     | The user explicitly confirmed both interpretations.                                                                                                                         |
+| D-012 | Accepted    | Fix `n = 3`; allow empty hue-upsets and coincident hue-upsets.                                                                                             | Three fixed hue channels make every coloring visually representable while retaining all requested input cases.                                                              |
+| D-013 | Accepted    | Map `1` to blue, `2` to red, and `3` to yellow; render their upsets as surrounding spatial regions with mixed overlaps.                                    | The coloring should read as colored areas around the Hasse diagram, not as marks confined to individual points.                                                             |
+| D-014 | Accepted    | Generate the visible trace directly from identity using same-color alpha and beta reductions on the current quotient classes.                              | This is the user-supplied constructive procedure; it avoids computing the final partition before the animation, while stable refinement remains an independent test oracle. |
+| D-015 | Accepted    | Condition 1 is the alpha reduction and uses the least strict upper class; condition 2 is the beta reduction and compares complete strict-upper-class sets. | The user confirmed both the terminology and the literal distinction between least and merely minimal.                                                                       |
+| D-016 | Accepted    | Prefer alpha reductions to beta reductions, then order candidates top-to-bottom and left-to-right.                                                         | This makes repeated runs produce the same mathematically valid animation trace.                                                                                             |
+| D-017 | Accepted    | Build each hue region from a solid convex hull backed by wide rounded cover strokes and point disks, then multiply-composite light hue bases.              | The hull removes internal holes, the strokes retain rounded small-region geometry, and light multiply bases give deterministic, order-independent mixed colors.             |
+
+## New decision template
+
+```text
+ID:
+Date:
+Status: Proposed | Accepted | Superseded
+Context:
+Decision:
+Consequences:
+```

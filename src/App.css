@@ -1,0 +1,338 @@
+.app-shell {
+  width: min(92rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 3rem);
+}
+.app-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: 0.5rem 0 clamp(1.5rem, 3vw, 2.5rem);
+}
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #68675f;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  margin-bottom: 0;
+  color: #20211e;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.35rem, 5vw, 4.8rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+h2 {
+  margin-bottom: 0;
+  color: #262723;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.header-copy {
+  max-width: 32rem;
+  margin: 0 0 0.25rem;
+  color: #64645d;
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+.workspace {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(17rem, 21rem) minmax(30rem, 1fr);
+  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: start;
+}
+.control-panel,
+.diagram-card {
+  min-width: 0;
+  border: 1px solid #dfddd4;
+  background: rgb(255 254 250 / 88%);
+  box-shadow: 0 1rem 3rem rgb(49 45 34 / 7%);
+}
+.control-panel {
+  position: sticky;
+  top: 1.25rem;
+  display: grid;
+  gap: 1.4rem;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+.control-copy {
+  margin: 0.8rem 0 0;
+  color: #6d6c65;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.hue-picker {
+  display: grid;
+  gap: 0.55rem;
+}
+.hue-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid #dedcd4;
+  border-radius: 0.8rem;
+  color: #31312d;
+  background: #fffefb;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.hue-choice:hover {
+  border-color: color-mix(in srgb, var(--hue), #7b796f 35%);
+  transform: translateY(-1px);
+}
+.hue-choice[data-selected='true'] {
+  border-color: var(--hue);
+  box-shadow:
+    inset 0 0 0 1px var(--hue),
+    0 0.35rem 1rem rgb(44 42 34 / 8%);
+}
+.hue-swatch {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--hue);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hue), #333 25%);
+}
+.hue-choice strong,
+.hue-choice small {
+  display: block;
+}
+.hue-choice strong {
+  font-size: 0.92rem;
+}
+.hue-choice small {
+  margin-top: 0.12rem;
+  color: #85837a;
+  font-size: 0.72rem;
+}
+.editing-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.7rem;
+  color: #5d5c55;
+  background: #f2f0e8;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.editing-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+.control-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.secondary-button,
+.text-button {
+  min-height: 2.6rem;
+  border-radius: 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.secondary-button {
+  border: 1px solid #d7d4ca;
+  color: #42423c;
+  background: #fffefb;
+}
+.text-button {
+  grid-column: 1 / -1;
+  border: 0;
+  color: #6e6d65;
+  background: transparent;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+button:focus-visible,
+.poset-point:focus-visible {
+  outline: 3px solid #292a27;
+  outline-offset: 3px;
+}
+.mini-guide {
+  padding-top: 1rem;
+  border-top: 1px solid #e5e2d9;
+  color: #79776f;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.mini-guide p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.guide-ring,
+.guide-dash {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+.guide-ring {
+  border: 2px solid #3975df;
+}
+.guide-dash {
+  border: 2px dashed #66655f;
+}
+.diagram-card {
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+.diagram-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.35rem 1.6rem 1.1rem;
+  border-bottom: 1px solid #e5e2d9;
+}
+.diagram-instruction {
+  margin: 0 0 0.1rem;
+  color: #77766e;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+.diagram-frame {
+  padding: clamp(0.7rem, 2vw, 1.3rem);
+  background: #f3f0e7;
+}
+.hasse-diagram {
+  display: block;
+  width: 100%;
+  max-height: calc(100vh - 12rem);
+  min-height: 38rem;
+  border-radius: 1rem;
+  isolation: isolate;
+}
+.diagram-background {
+  fill: #fffdf8;
+}
+.region-layer {
+  isolation: isolate;
+}
+.hue-region {
+  opacity: 0.68;
+  mix-blend-mode: multiply;
+}
+.edge-layer line {
+  stroke: rgb(45 45 40 / 55%);
+  stroke-width: 2.6;
+}
+.point-hit-target {
+  fill: transparent;
+}
+.poset-point {
+  cursor: pointer;
+}
+.point-core {
+  stroke: #292a27;
+  stroke-width: 3.5;
+  transition: r 120ms ease;
+}
+.poset-point:hover .point-core,
+.poset-point:focus .point-core {
+  r: 14px;
+}
+.generator-ring {
+  fill: none;
+  stroke-width: 5;
+  vector-effect: non-scaling-stroke;
+}
+.preview-layer circle {
+  fill: none;
+  stroke: #30312e;
+  stroke-width: 3;
+  stroke-dasharray: 8 7;
+  vector-effect: non-scaling-stroke;
+  animation: preview-dash 1.25s linear infinite;
+}
+.preview-layer.preview-remove circle {
+  stroke: #a43a3a;
+}
+@keyframes preview-dash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+@media (max-width: 54rem) {
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .header-copy {
+    width: 100%;
+  }
+  .control-panel {
+    position: static;
+  }
+  .hue-picker {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .hue-choice {
+    justify-content: center;
+  }
+  .hasse-diagram {
+    max-height: none;
+    min-height: 0;
+  }
+}
+@media (max-width: 35rem) {
+  .app-shell {
+    padding: 1rem;
+  }
+  .hue-picker {
+    grid-template-columns: 1fr;
+  }
+  .hue-choice {
+    justify-content: flex-start;
+  }
+  .diagram-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
