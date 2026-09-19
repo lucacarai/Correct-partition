@@ -37,7 +37,7 @@ npm run build
 
 ## GitHub Pages deployment
 
-Pushing to `master` deploys the production build through GitHub Actions. In
+Pushing to `main` deploys the production build through GitHub Actions. In
 the repository's **Settings > Pages**, select **GitHub Actions** as the
 publishing source. The app is published at:
 
