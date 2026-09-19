@@ -9,16 +9,15 @@ import {
   type ThreeColoring,
 } from '../math/coloring'
 import {
-  fixedCovers,
-  fixedElementIds,
-  fixedPointById,
-  fixedPoset,
-  type FixedElementId,
-} from '../math/fixedPoset'
+  type LayeredPoset,
+  type PosetElementId,
+  type PosetPoint,
+} from '../math/layeredPoset'
+import type { Partition } from '../math/partition'
 import {
   convexHull,
-  DIAGRAM_HEIGHT,
   DIAGRAM_WIDTH,
+  diagramHeight,
   diagramPoint,
   partitionContours,
 } from '../visual/geometry'
@@ -28,18 +27,22 @@ import {
   HUE_REGION_COLORS,
   MIXED_COLORS,
 } from '../visual/palette'
-import type { Partition } from '../math/partition'
+
+const HUE_EXCLUSION_HALO_RADIUS = 27
 
 interface HasseDiagramProps {
-  readonly coloring: ThreeColoring<FixedElementId>
+  readonly model: LayeredPoset
+  readonly coloring: ThreeColoring<PosetElementId>
   readonly activeHue: Hue
-  readonly onToggle: (element: FixedElementId) => void
-  readonly partition?: Partition<FixedElementId>
+  readonly onToggle: (element: PosetElementId) => void
+  readonly partition?: Partition<PosetElementId>
+  readonly isEditingPoset: boolean
+  readonly onToggleMiddleLayer: (row: number) => void
 }
 
 function accessibleColorName(
-  coloring: ThreeColoring<FixedElementId>,
-  element: FixedElementId,
+  coloring: ThreeColoring<PosetElementId>,
+  element: PosetElementId,
 ): string {
   const hues = colorOf(coloring, element)
   return hues.length === 0
@@ -48,73 +51,134 @@ function accessibleColorName(
 }
 
 export function HasseDiagram({
+  model,
   coloring,
   activeHue,
   onToggle,
   partition,
+  isEditingPoset,
+  onToggleMiddleLayer,
 }: HasseDiagramProps) {
+  const { covers, elementIds, layerCount, pointById, points, poset } = model
   const maskPrefix = useId().replaceAll(':', '')
-  const [hovered, setHovered] = useState<FixedElementId | null>(null)
+  const [hovered, setHovered] = useState<PosetElementId | null>(null)
   const preview = useMemo(
     () =>
-      hovered && !partition
-        ? affectedElementsForToggle(fixedPoset, coloring, activeHue, hovered)
-        : new Set<FixedElementId>(),
-    [activeHue, coloring, hovered, partition],
+      hovered && !partition && !isEditingPoset
+        ? affectedElementsForToggle(poset, coloring, activeHue, hovered)
+        : new Set<PosetElementId>(),
+    [activeHue, coloring, hovered, isEditingPoset, partition, poset],
   )
   const previewRemoves = hovered ? coloring[activeHue].has(hovered) : false
   const minimalByHue = useMemo(
     () =>
       Object.fromEntries(
-        HUES.map((hue) => [hue, minimalHueElements(fixedPoset, coloring, hue)]),
-      ) as Record<Hue, ReadonlySet<FixedElementId>>,
-    [coloring],
+        HUES.map((hue) => [hue, minimalHueElements(poset, coloring, hue)]),
+      ) as Record<Hue, ReadonlySet<PosetElementId>>,
+    [coloring, poset],
   )
+  const pointPosition = (element: PosetElementId) =>
+    diagramPoint(pointById.get(element)!)
   const regionHullByHue = useMemo(
     () =>
       Object.fromEntries(
         HUES.map((hue) => [
           hue,
-          convexHull([...coloring[hue]].map(diagramPoint)),
+          convexHull(
+            [...coloring[hue]].map((element) =>
+              diagramPoint(pointById.get(element)!),
+            ),
+          ),
         ]),
       ) as Record<Hue, readonly { x: number; y: number }[]>,
-    [coloring],
+    [coloring, pointById],
   )
   const partitionShapes = useMemo(() => {
     if (!partition) return []
 
     const contours = partitionContours(
-      partition.blocks.map((block) => block.elements.map(diagramPoint)),
+      partition.blocks.map((block) =>
+        block.elements.map((element) => diagramPoint(pointById.get(element)!)),
+      ),
     )
     return partition.blocks.map((block, index) => ({
       block,
       index,
       contour: contours[index]!,
     }))
-  }, [partition])
+  }, [partition, pointById])
+
+  const optionalMiddleRows = Array.from(
+    { length: Math.max(0, layerCount - 2) },
+    (_, index) => index + 2,
+  )
+
+  const pointControlProps = (point: PosetPoint) => {
+    if (isEditingPoset) {
+      if (point.column === 1 && point.row >= 2) {
+        return {
+          role: 'button',
+          tabIndex: 0,
+          'aria-label': `Remove middle point from layer ${point.row + 1}`,
+          onClick: () => onToggleMiddleLayer(point.row),
+          onKeyDown: (event: React.KeyboardEvent<SVGGElement>) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              onToggleMiddleLayer(point.row)
+            }
+          },
+        } as const
+      }
+      return { 'aria-hidden': true, tabIndex: -1 } as const
+    }
+
+    return {
+      role: 'button',
+      tabIndex: partition ? -1 : 0,
+      'aria-disabled': partition ? true : undefined,
+      'aria-label': `Point row ${point.row + 1}, column ${point.column + 1}; ${accessibleColorName(coloring, point.id)}`,
+      onClick: () => !partition && onToggle(point.id),
+      onMouseEnter: () => !partition && setHovered(point.id),
+      onMouseLeave: () => setHovered(null),
+      onFocus: () => !partition && setHovered(point.id),
+      onBlur: () => setHovered(null),
+      onKeyDown: (event: React.KeyboardEvent<SVGGElement>) => {
+        if (!partition && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault()
+          onToggle(point.id)
+        }
+      },
+    } as const
+  }
 
   return (
     <section className="diagram-card" aria-labelledby="diagram-title">
       <div className="diagram-heading">
         <div>
-          <p className="eyebrow">Fixed finite poset</p>
+          <p className="eyebrow">Layered finite poset</p>
           <h2 id="diagram-title">
-            {partition ? 'Inspect the partition' : 'Build three upsets'}
+            {partition
+              ? 'Inspect the partition'
+              : isEditingPoset
+                ? 'Choose middle points'
+                : 'Build three upsets'}
           </h2>
         </div>
         <p className="diagram-instruction">
           {partition
             ? `${partition.blocks.length} ${partition.blocks.length === 1 ? 'class' : 'classes'}`
-            : `Hover to preview · click to ${previewRemoves ? 'remove' : 'add'}`}
+            : isEditingPoset
+              ? `${layerCount} layers · click dashed middle positions`
+              : `Hover to preview · click to ${previewRemoves ? 'remove' : 'add'}`}
         </p>
       </div>
 
       <div className="diagram-frame">
         <svg
           className="hasse-diagram"
-          viewBox={`0 0 ${DIAGRAM_WIDTH} ${DIAGRAM_HEIGHT}`}
+          viewBox={`0 0 ${DIAGRAM_WIDTH} ${diagramHeight(layerCount)}`}
           role="group"
-          aria-label="Interactive Hasse diagram with 21 points"
+          aria-label={`Interactive Hasse diagram with ${elementIds.length} points and ${layerCount} layers`}
         >
           <defs>
             {HUES.map((hue) => (
@@ -130,15 +194,15 @@ export function HasseDiagram({
                       strokeLinejoin="round"
                     />
                   )}
-                  {fixedCovers.map(([lower, upper]) => {
+                  {covers.map(([lower, upper]) => {
                     if (
                       !coloring[hue].has(lower) ||
                       !coloring[hue].has(upper)
                     ) {
                       return null
                     }
-                    const from = diagramPoint(lower)
-                    const to = diagramPoint(upper)
+                    const from = pointPosition(lower)
+                    const to = pointPosition(upper)
                     return (
                       <line
                         key={`${lower}-${upper}`}
@@ -151,9 +215,26 @@ export function HasseDiagram({
                     )
                   })}
                   {[...coloring[hue]].map((element) => {
-                    const point = diagramPoint(element)
+                    const point = pointPosition(element)
                     return (
                       <circle key={element} cx={point.x} cy={point.y} r="46" />
+                    )
+                  })}
+                </g>
+                <g fill="black">
+                  {points.map((location) => {
+                    if (coloring[hue].has(location.id)) return null
+                    const point = diagramPoint(location)
+                    return (
+                      <circle
+                        className="hue-exclusion-halo"
+                        data-hue={hue}
+                        data-element={location.id}
+                        key={location.id}
+                        cx={point.x}
+                        cy={point.y}
+                        r={HUE_EXCLUSION_HALO_RADIUS}
+                      />
                     )
                   })}
                 </g>
@@ -182,9 +263,9 @@ export function HasseDiagram({
           </g>
 
           <g className="edge-layer" aria-hidden="true">
-            {fixedCovers.map(([lower, upper]) => {
-              const from = diagramPoint(lower)
-              const to = diagramPoint(upper)
+            {covers.map(([lower, upper]) => {
+              const from = pointPosition(lower)
+              const to = pointPosition(upper)
               return (
                 <line
                   key={`${lower}-${upper}`}
@@ -197,44 +278,27 @@ export function HasseDiagram({
             })}
           </g>
 
-          {hovered && !partition && (
+          {hovered && !partition && !isEditingPoset && (
             <g
               className={`preview-layer ${previewRemoves ? 'preview-remove' : 'preview-add'}`}
               aria-hidden="true"
             >
               {[...preview].map((element) => {
-                const point = diagramPoint(element)
+                const point = pointPosition(element)
                 return <circle key={element} cx={point.x} cy={point.y} r="33" />
               })}
             </g>
           )}
 
           <g className="point-layer">
-            {fixedElementIds.map((element) => {
-              const point = diagramPoint(element)
-              const location = fixedPointById.get(element)!
+            {points.map((location) => {
+              const element = location.id
+              const point = diagramPoint(location)
               return (
                 <g
-                  className="poset-point"
+                  className={`poset-point ${isEditingPoset && location.column === 1 && location.row >= 2 ? 'middle-point-toggle' : ''}`}
                   key={element}
-                  role="button"
-                  tabIndex={partition ? -1 : 0}
-                  aria-disabled={partition ? true : undefined}
-                  aria-label={`Point row ${location.row + 1}, column ${location.column + 1}; ${accessibleColorName(coloring, element)}`}
-                  onClick={() => !partition && onToggle(element)}
-                  onMouseEnter={() => !partition && setHovered(element)}
-                  onMouseLeave={() => setHovered(null)}
-                  onFocus={() => !partition && setHovered(element)}
-                  onBlur={() => setHovered(null)}
-                  onKeyDown={(event) => {
-                    if (
-                      !partition &&
-                      (event.key === 'Enter' || event.key === ' ')
-                    ) {
-                      event.preventDefault()
-                      onToggle(element)
-                    }
-                  }}
+                  {...pointControlProps(location)}
                 >
                   <circle
                     className="point-hit-target"
@@ -266,6 +330,45 @@ export function HasseDiagram({
             })}
           </g>
 
+          {isEditingPoset && (
+            <g className="middle-slot-layer">
+              {optionalMiddleRows.map((row) => {
+                if (model.middleLayers.has(row)) return null
+                const point = diagramPoint({ id: `r${row}c1`, row, column: 1 })
+                return (
+                  <g
+                    className="middle-slot"
+                    key={row}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Add middle point to layer ${row + 1}`}
+                    onClick={() => onToggleMiddleLayer(row)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        onToggleMiddleLayer(row)
+                      }
+                    }}
+                  >
+                    <circle cx={point.x} cy={point.y} r="25" />
+                    <line
+                      x1={point.x - 8}
+                      y1={point.y}
+                      x2={point.x + 8}
+                      y2={point.y}
+                    />
+                    <line
+                      x1={point.x}
+                      y1={point.y - 8}
+                      x2={point.x}
+                      y2={point.y + 8}
+                    />
+                  </g>
+                )
+              })}
+            </g>
+          )}
+
           {partition && (
             <g
               className="partition-layer"
@@ -274,7 +377,7 @@ export function HasseDiagram({
             >
               {partitionShapes.map(({ block, contour, index }) => {
                 const positions = block.elements.map((element) => {
-                  const point = fixedPointById.get(element)!
+                  const point = pointById.get(element)!
                   return `row ${point.row + 1}, column ${point.column + 1}`
                 })
                 return (

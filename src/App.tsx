@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { HasseDiagram } from './components/HasseDiagram'
 import { HueControls } from './components/HueControls'
 import { PartitionControls } from './components/PartitionControls'
+import { PosetControls } from './components/PosetControls'
 import {
   clearHue,
   createEmptyColoring,
@@ -11,35 +12,52 @@ import {
   type Hue,
   type ThreeColoring,
 } from './math/coloring'
-import { fixedPoset, type FixedElementId } from './math/fixedPoset'
+import {
+  createLayeredPoset,
+  DEFAULT_LAYER_COUNT,
+  DEFAULT_MIDDLE_LAYERS,
+  type PosetElementId,
+} from './math/layeredPoset'
 import {
   computeReductionTrace,
   type ReductionStep,
   type ReductionTrace,
 } from './math/reductions'
+import { decodeWorkspace, encodeWorkspace } from './math/shareCode'
 import { PLAYBACK_DELAY_MS, type PlaybackSpeed } from './playback'
 
-function explainStep(step?: ReductionStep<FixedElementId>): string {
-  if (!step) {
-    return 'Identity relation: every point begins in its own class.'
-  }
-
+function explainStep(step?: ReductionStep<PosetElementId>): string {
+  if (!step) return 'Identity relation: every point begins in its own class.'
   return `${step.type === 'alpha' ? 'Alpha' : 'Beta'} merge.`
 }
 
 function App() {
   const [activeHue, setActiveHue] = useState<Hue>(1)
+  const [layerCount, setLayerCount] = useState(DEFAULT_LAYER_COUNT)
+  const [middleLayers, setMiddleLayers] = useState<ReadonlySet<number>>(
+    () => new Set(DEFAULT_MIDDLE_LAYERS),
+  )
+  const [isEditingPoset, setIsEditingPoset] = useState(false)
+  const model = useMemo(
+    () => createLayeredPoset(layerCount, middleLayers),
+    [layerCount, middleLayers],
+  )
   const [coloring, setColoring] =
-    useState<ThreeColoring<FixedElementId>>(createEmptyColoring)
+    useState<ThreeColoring<PosetElementId>>(createEmptyColoring)
   const [history, setHistory] = useState<
-    readonly ThreeColoring<FixedElementId>[]
+    readonly ThreeColoring<PosetElementId>[]
   >([])
-  const [trace, setTrace] = useState<ReductionTrace<FixedElementId> | null>(
+  const [trace, setTrace] = useState<ReductionTrace<PosetElementId> | null>(
     null,
   )
   const [frameIndex, setFrameIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [showTraceExplanation, setShowTraceExplanation] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1)
+  const shareCode = useMemo(
+    () => encodeWorkspace(model, coloring),
+    [coloring, model],
+  )
 
   useEffect(() => {
     if (!isPlaying || !trace) return
@@ -49,67 +67,67 @@ function App() {
     const timer = window.setTimeout(() => {
       const nextFrameIndex = frameIndex + 1
       setFrameIndex(nextFrameIndex)
-      if (nextFrameIndex === lastFrameIndex) {
-        setIsPlaying(false)
-      }
+      if (nextFrameIndex === lastFrameIndex) setIsPlaying(false)
     }, PLAYBACK_DELAY_MS / playbackSpeed)
     return () => window.clearTimeout(timer)
   }, [frameIndex, isPlaying, playbackSpeed, trace])
 
-  const commit = (next: ThreeColoring<FixedElementId>) => {
+  const commit = (next: ThreeColoring<PosetElementId>) => {
     setHistory((past) => [...past, coloring])
     setColoring(next)
   }
 
-  const toggle = (element: FixedElementId) => {
-    commit(toggleHueAtElement(fixedPoset, coloring, activeHue, element))
-  }
-
-  const undo = () => {
-    const previous = history.at(-1)
-    if (!previous) return
-    setColoring(previous)
-    setHistory((past) => past.slice(0, -1))
-  }
-
-  const reset = () => {
-    commit(createEmptyColoring<FixedElementId>())
-  }
-
-  const startPartitioning = () => {
-    setTrace(computeReductionTrace(fixedPoset, coloring))
-    setFrameIndex(0)
-    setIsPlaying(false)
-  }
-
-  const resetPartitioning = () => {
+  const clearWorkForNewPoset = () => {
+    setColoring(createEmptyColoring<PosetElementId>())
+    setHistory([])
     setTrace(null)
     setFrameIndex(0)
     setIsPlaying(false)
+    setShowTraceExplanation(false)
   }
 
-  const previousFrame = () => {
-    setIsPlaying(false)
-    setFrameIndex((index) => Math.max(0, index - 1))
+  const changeLayerCount = (nextLayerCount: number) => {
+    setLayerCount(nextLayerCount)
+    setMiddleLayers(
+      (current) => new Set([...current].filter((row) => row < nextLayerCount)),
+    )
+    clearWorkForNewPoset()
   }
 
-  const nextFrame = () => {
-    if (!trace) return
-    setIsPlaying(false)
-    setFrameIndex((index) => Math.min(trace.partitions.length - 1, index + 1))
+  const toggleMiddleLayer = (row: number) => {
+    if (row < 2 || row >= layerCount) return
+    setMiddleLayers((current) => {
+      const next = new Set(current)
+      if (next.has(row)) next.delete(row)
+      else next.add(row)
+      return next
+    })
+    clearWorkForNewPoset()
   }
 
-  const togglePlayback = () => {
-    if (!trace) return
-    if (isPlaying) {
-      setIsPlaying(false)
-      return
-    }
-    if (trace.partitions.length <= 1) return
-    if (frameIndex === trace.partitions.length - 1) {
+  const restoreDefaultPoset = () => {
+    setLayerCount(DEFAULT_LAYER_COUNT)
+    setMiddleLayers(new Set(DEFAULT_MIDDLE_LAYERS))
+    clearWorkForNewPoset()
+  }
+
+  const loadShareCode = (code: string): string | null => {
+    try {
+      const decoded = decodeWorkspace(code)
+      setLayerCount(decoded.model.layerCount)
+      setMiddleLayers(new Set(decoded.model.middleLayers))
+      setColoring(decoded.coloring)
+      setHistory([])
+      setTrace(null)
       setFrameIndex(0)
+      setIsPlaying(false)
+      setShowTraceExplanation(false)
+      return null
+    } catch (error) {
+      return error instanceof Error
+        ? error.message
+        : 'The share code is invalid'
     }
-    setIsPlaying(true)
   }
 
   const partition = trace?.partitions[frameIndex]
@@ -133,14 +151,48 @@ function App() {
             frameIndex={frameIndex}
             frameCount={trace.partitions.length}
             classCount={partition.blocks.length}
-            explanation={explainStep(trace.steps[frameIndex - 1])}
+            explanation={
+              showTraceExplanation
+                ? explainStep(trace.steps[frameIndex - 1])
+                : ''
+            }
             isPlaying={isPlaying}
             speed={playbackSpeed}
-            onPrevious={previousFrame}
-            onPlayPause={togglePlayback}
-            onNext={nextFrame}
+            onPrevious={() => {
+              setIsPlaying(false)
+              setShowTraceExplanation(true)
+              setFrameIndex((index) => Math.max(0, index - 1))
+            }}
+            onPlayPause={() => {
+              if (isPlaying) {
+                setIsPlaying(false)
+              } else if (trace.partitions.length > 1) {
+                setShowTraceExplanation(true)
+                if (frameIndex === trace.partitions.length - 1) setFrameIndex(0)
+                setIsPlaying(true)
+              }
+            }}
+            onNext={() => {
+              setIsPlaying(false)
+              setShowTraceExplanation(true)
+              setFrameIndex((index) =>
+                Math.min(trace.partitions.length - 1, index + 1),
+              )
+            }}
             onSpeedChange={setPlaybackSpeed}
-            onReset={resetPartitioning}
+            onReset={() => {
+              setTrace(null)
+              setFrameIndex(0)
+              setIsPlaying(false)
+              setShowTraceExplanation(false)
+            }}
+          />
+        ) : isEditingPoset ? (
+          <PosetControls
+            layerCount={layerCount}
+            onLayerCountChange={changeLayerCount}
+            onDone={() => setIsEditingPoset(false)}
+            onRestoreDefault={restoreDefaultPoset}
           />
         ) : (
           <HueControls
@@ -149,17 +201,40 @@ function App() {
             activeHueIsEmpty={coloring[activeHue].size === 0}
             allHuesAreEmpty={HUES.every((hue) => coloring[hue].size === 0)}
             onSelectHue={setActiveHue}
-            onUndo={undo}
-            onClearHue={() => commit(clearHue(fixedPoset, coloring, activeHue))}
-            onReset={reset}
-            onStart={startPartitioning}
+            onUndo={() => {
+              const previous = history.at(-1)
+              if (!previous) return
+              setColoring(previous)
+              setHistory((past) => past.slice(0, -1))
+            }}
+            onClearHue={() =>
+              commit(clearHue(model.poset, coloring, activeHue))
+            }
+            onReset={() => commit(createEmptyColoring<PosetElementId>())}
+            onStart={() => {
+              const nextTrace = computeReductionTrace(model.poset, coloring)
+              setTrace(nextTrace)
+              setFrameIndex(nextTrace.partitions.length - 1)
+              setIsPlaying(false)
+              setShowTraceExplanation(false)
+            }}
+            onChangePoset={() => setIsEditingPoset(true)}
+            shareCode={shareCode}
+            onLoadShareCode={loadShareCode}
           />
         )}
         <HasseDiagram
+          model={model}
           activeHue={activeHue}
           coloring={coloring}
-          onToggle={toggle}
+          onToggle={(element) =>
+            commit(
+              toggleHueAtElement(model.poset, coloring, activeHue, element),
+            )
+          }
           partition={partition}
+          isEditingPoset={isEditingPoset}
+          onToggleMiddleLayer={toggleMiddleLayer}
         />
       </div>
     </main>

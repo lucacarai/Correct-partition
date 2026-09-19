@@ -1,8 +1,9 @@
-import { fixedPointById, type FixedElementId } from '../math/fixedPoset'
+import type { PosetPoint } from '../math/layeredPoset'
 
 export const DIAGRAM_WIDTH = 760
-export const DIAGRAM_HEIGHT = 1020
 export const PARTITION_BUBBLE_PADDING = 34
+const DIAGRAM_TOP = 84
+const DIAGRAM_ROW_GAP = 106
 
 export interface DiagramPoint {
   readonly x: number
@@ -74,15 +75,14 @@ export function paddedConvexHull(
   )
 }
 
-export function diagramPoint(id: FixedElementId): DiagramPoint {
-  const point = fixedPointById.get(id)
-  if (!point) {
-    throw new Error(`Unknown fixed point ${id}`)
-  }
+export function diagramHeight(layerCount: number): number {
+  return DIAGRAM_TOP * 2 + (layerCount - 1) * DIAGRAM_ROW_GAP
+}
 
+export function diagramPoint(point: PosetPoint): DiagramPoint {
   return {
     x: 140 + point.column * 240,
-    y: 84 + point.row * 106,
+    y: DIAGRAM_TOP + point.row * DIAGRAM_ROW_GAP,
   }
 }
 

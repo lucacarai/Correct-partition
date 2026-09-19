@@ -28,6 +28,10 @@ draws a spatial region around the points of its upset `U_i`.
 - Coincident hue-upsets produce coincident regions whose colors mix.
 - Region boundaries should be soft enough to read as areas but precise enough
   that membership of every point remains unambiguous.
+- When a hue region geometrically surrounds a point that is not a member of that
+  hue, cut a clear circular halo for that hue around the point. Apply this
+  independently per hue, so the halo removes only colors the point does not
+  possess and preserves any hues that do belong to it.
 
 ## Mixing
 

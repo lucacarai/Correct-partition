@@ -5,7 +5,7 @@ details are still to be specified.
 
 ## Purpose
 
-Given a fixed finite poset and a user-defined order-preserving `3`-coloring,
+Given a configurable layered finite poset and a user-defined order-preserving `3`-coloring,
 visually construct the greatest correct equivalence relation that identifies
 only points of equal color.
 
@@ -17,9 +17,20 @@ classes merge while every intermediate state remains mathematically valid.
 
 ## Inputs
 
-- The poset is fixed by the application in the first version and is not entered
-  by the user. It is the label-free 21-point diagram recorded in
-  `docs/FIXED_POSET.md`.
+- The poset belongs to the three-column layered family specified in
+  `docs/MATHEMATICAL_SPEC.md`. It has between 2 and 30 layers; the top layer is
+  a single middle point, the next layer always has three points, and every
+  later layer has left and right points plus an optional middle point.
+- The 9-layer, 21-point diagram recorded in `docs/FIXED_POSET.md` is the default.
+- A `Change poset` control opens a structure editor. The user enters the number
+  of layers and clicks optional middle positions in the diagram to add or remove
+  those points. Structural changes clear the current coloring, undo history,
+  and computed trace.
+- The coloring panel displays a versioned, URL-safe share code encoding the
+  layer count, optional middle layers, and minimal generators of all three hue
+  upsets. The user can copy this code or paste and load another one. Loading a
+  valid code reconstructs the poset and coloring and clears undo and trace
+  state; an invalid code reports an error without changing the workspace.
 - A coloring has exactly three independently selectable hues.
 - For each hue, the user selects an arbitrary upset. Its minimal elements form
   an antichain and provide the canonical stored representation.
@@ -46,27 +57,33 @@ classes merge while every intermediate state remains mathematically valid.
 
 Known flow:
 
-1. Display the fixed poset as a Hasse diagram.
+1. Display the current layered poset as a Hasse diagram, initially using the
+   original 9-layer default.
 2. Let the user choose a hue and edit its upset directly on the diagram. The
    interface automatically preserves upward closure and marks the upset's
    minimal elements.
 3. Derive and display the resulting coloring.
-4. When the user presses the start button, draw one bubble around every point,
-   representing the identity equivalence relation.
-5. Merge bubbles step by step. Every displayed partition must remain correct
+4. When the user presses `Compute correct partition`, compute the complete trace
+   and immediately display the greatest correct equivalence relation.
+5. When the user presses Replay, return to the identity equivalence relation,
+   represented by one bubble around every point, and play the trace forward.
+6. Merge bubbles step by step. Every displayed partition must remain correct
    and may identify only equally colored points.
-6. Stop at the greatest equivalence relation satisfying those conditions.
 
-The first partition-playback increment is manually inspectable: starting the
-process computes the tested trace and displays its identity frame, Previous and
-Next move through static frames, and Reset returns to the coloring editor.
+The first partition-playback increment is manually inspectable: `Compute correct
+partition` computes the tested trace and immediately displays its final frame.
+Previous and Next move through static frames, Replay starts playback from the
+identity frame, and Reset returns to the coloring editor.
+The merge-explanation box is initially blank on the computed final frame. After
+the user first presses Replay, Previous, or Next, it resumes displaying the
+Identity, Alpha merge, and Beta merge labels for the selected trace frames.
 Coloring controls and point editing are unavailable while a computed trace is
 being inspected so that the displayed trace always corresponds to the visible
 coloring.
 
-Playback advances one trace frame every 1.2 seconds at the default `1x` speed.
+Playback advances one trace frame every 0.6 seconds at the default `1x` speed.
 The available speeds are `0.5x`, `1x`, and `2x`. Previous and Next pause active
-playback before stepping, Pause leaves the current frame selected, and Play on
+playback before stepping, Pause leaves the current frame selected, and Replay on
 the final frame restarts from the identity frame. Reset stops playback and
 returns to the unchanged coloring.
 
@@ -83,9 +100,10 @@ Still to define:
 
 ## Scope boundaries
 
-The first version does not accept arbitrary user-supplied posets. It remains to
-determine whether it needs saved work, sharing, exports, a backend, accounts,
-or only a client-side visualization.
+The first version does not accept arbitrary user-supplied posets outside the
+specified three-column layered family. It remains to determine whether it needs
+saved work, sharing, exports, a backend, accounts, or only a client-side
+visualization.
 
 ## Acceptance criteria
 

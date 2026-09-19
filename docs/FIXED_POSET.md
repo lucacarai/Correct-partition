@@ -1,8 +1,10 @@
-# Fixed poset
+# Default poset
 
-This document translates the supplied TikZ diagram into label-free internal
-identifiers. The visible application should not display the source element
-names.
+This document records the supplied TikZ diagram that remains the application
+default. It is one member of the configurable layered family defined in
+`docs/MATHEMATICAL_SPEC.md` and translates the original into label-free
+internal identifiers. The visible application should not display the source
+element names.
 
 ## Coordinate convention
 

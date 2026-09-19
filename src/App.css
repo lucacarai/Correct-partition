@@ -180,6 +180,34 @@ h2 {
   font-weight: 750;
   cursor: pointer;
 }
+.change-poset-button {
+  width: 100%;
+}
+.layer-count-control {
+  display: grid;
+  gap: 0.5rem;
+  color: #52524c;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.layer-count-control input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #d7d4ca;
+  border-radius: 0.7rem;
+  color: #292a27;
+  background: #fffefb;
+  font: inherit;
+  font-size: 1rem;
+}
+.layer-count-control input:focus-visible {
+  outline: 3px solid #292a27;
+  outline-offset: 3px;
+}
+.poset-editing-hint {
+  line-height: 1.45;
+}
 .text-button {
   grid-column: 1 / -1;
   border: 0;
@@ -275,6 +303,43 @@ button:focus-visible,
 .poset-point[aria-disabled='true'] {
   cursor: default;
 }
+.middle-point-toggle {
+  cursor: pointer;
+}
+.middle-point-toggle .point-core {
+  fill: #292a27;
+  stroke: #fffdf8;
+  stroke-width: 4;
+}
+.middle-point-toggle:hover .point-core,
+.middle-point-toggle:focus .point-core {
+  fill: #9a3f38;
+}
+.middle-slot {
+  cursor: pointer;
+}
+.middle-slot circle {
+  fill: rgb(255 253 248 / 86%);
+  stroke: #77766e;
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+  vector-effect: non-scaling-stroke;
+}
+.middle-slot line {
+  stroke: #68675f;
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.middle-slot:hover circle,
+.middle-slot:focus circle {
+  fill: #eeeae0;
+  stroke: #292a27;
+}
+.middle-slot:focus-visible,
+.middle-point-toggle:focus-visible {
+  outline: none;
+}
 .point-core {
   stroke: #292a27;
   stroke-width: 3.5;
@@ -336,7 +401,6 @@ button:focus-visible,
   accent-color: #292a27;
 }
 .merge-explanation {
-  min-height: 7rem;
   margin: 0;
   padding: 1rem;
   border-left: 3px solid #292a27;
@@ -376,6 +440,54 @@ button:focus-visible,
 }
 .trace-guide {
   margin: 0;
+}
+.share-controls {
+  display: grid;
+  gap: 0.7rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #e5e2d9;
+}
+.share-controls .eyebrow {
+  margin-bottom: 0.25rem;
+}
+.share-controls h3 {
+  margin: 0;
+  color: #343530;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.share-controls textarea {
+  width: 100%;
+  min-height: 5.4rem;
+  resize: vertical;
+  padding: 0.65rem;
+  border: 1px solid #d7d4ca;
+  border-radius: 0.65rem;
+  color: #44443f;
+  background: #fffefb;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.share-controls textarea:focus-visible {
+  outline: 3px solid #292a27;
+  outline-offset: 3px;
+}
+.share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.share-message {
+  margin: 0;
+  color: #55704e;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.share-message[data-error='true'] {
+  color: #9a3f38;
 }
 @keyframes preview-dash {
   to {

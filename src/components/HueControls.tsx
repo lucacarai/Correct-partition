@@ -1,5 +1,6 @@
 import { HUES, type Hue } from '../math/coloring'
 import { HUE_COLORS, HUE_NAMES } from '../visual/palette'
+import { ShareControls } from './ShareControls'
 
 interface HueControlsProps {
   readonly activeHue: Hue
@@ -11,6 +12,9 @@ interface HueControlsProps {
   readonly onClearHue: () => void
   readonly onReset: () => void
   readonly onStart: () => void
+  readonly onChangePoset: () => void
+  readonly shareCode: string
+  readonly onLoadShareCode: (code: string) => string | null
 }
 
 export function HueControls({
@@ -23,6 +27,9 @@ export function HueControls({
   onClearHue,
   onReset,
   onStart,
+  onChangePoset,
+  shareCode,
+  onLoadShareCode,
 }: HueControlsProps) {
   return (
     <aside className="control-panel" aria-labelledby="coloring-title">
@@ -89,7 +96,14 @@ export function HueControls({
       </div>
 
       <button className="primary-button start-button" onClick={onStart}>
-        Start partitioning
+        Compute correct partition
+      </button>
+
+      <button
+        className="secondary-button change-poset-button"
+        onClick={onChangePoset}
+      >
+        Change poset
       </button>
 
       <div className="mini-guide">
@@ -102,6 +116,8 @@ export function HueControls({
           shows what will change.
         </p>
       </div>
+
+      <ShareControls shareCode={shareCode} onLoad={onLoadShareCode} />
     </aside>
   )
 }

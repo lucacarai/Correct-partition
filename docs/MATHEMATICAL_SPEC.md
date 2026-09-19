@@ -8,15 +8,37 @@ and tested without referring to the UI.
 
 ## Poset family
 
-Let `(X, <=)` be a finite poset. In the first version, `X` is the 21-element
-poset defined by coordinates and 37 cover relations in `docs/FIXED_POSET.md`.
-The order relation is the reflexive-transitive closure of those covers.
+Let `(X, <=)` be a finite poset from the following three-column layered family.
+Choose an integer `2 <= L <= 30`, number the layers `0, ..., L - 1` from top to
+bottom, and number columns `0, 1, 2` from left to right. Layer `0` contains only
+`(0, 1)`, layer `1` contains all three columns, and every layer `i >= 2`
+contains `(i, 0)` and `(i, 2)` plus an independently optional middle point
+`(i, 1)`.
 
-The supplied diagram also determines the initial display coordinates. Its row
+For present points, define
+
+```text
+(i, c) <= (j, d)  exactly when  i >= j and |c - d| <= i - j.
+```
+
+There is one exception for adjacent middle-column points. If `c = d = 1` and
+`i = j + 1`, the two points are incomparable unless `(i, j) = (1, 0)`. Thus the
+mandatory middle points in the top two layers are comparable, but no other pair
+of adjacent middle points is comparable. Middle points separated by two or more
+layers may still become comparable through the surrounding outer points.
+
+The Hasse diagram displays the covers of this order. Taking covers after the
+optional middle points are selected naturally produces diagonal covers that
+skip a layer when no intermediate point is present.
+
+The default is the 21-element, 9-layer poset in `docs/FIXED_POSET.md`, with
+middle points on layers `0`, `1`, `4`, `6`, and `8`.
+
+The layers and columns determine the display coordinates. Row
 numbers are layout positions rather than an assumed rank function. Every TikZ
 arrow is a confirmed cover relation, and the unlabeled bottom-center source is
-a confirmed element. The initial interface displays points without their source
-element-name labels.
+a confirmed element of the default. The interface displays points without their
+source element-name labels.
 
 ## Coloring
 

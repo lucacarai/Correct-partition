@@ -55,8 +55,8 @@ always displays an isotone coloring.
 
 ## Milestone 3: partition states and playback — complete
 
-- [x] Compute the trace when the user starts the process.
-- [x] Show the identity relation as one bubble around each point.
+- [x] Compute the trace and immediately show its final partition when requested.
+- [x] Start Replay from the identity relation, with one bubble around each point.
 - [x] Add previous, next, and reset controls.
 - [x] Add play, pause, and speed controls.
 - [x] Render every static trace state before adding shape morphing.
@@ -66,6 +66,12 @@ Exit condition: every trace state is inspectable and matches the tested
 mathematical output.
 
 ## Milestone 4: bubble animation
+
+Before Milestone 4, the fixed input was generalized to the confirmed layered
+poset family. The user can change the number of layers and toggle optional
+middle points directly in the diagram; the original 9-layer poset remains the
+default. The generated order, cover relations, coloring, and trace computation
+are tested independently of the interface.
 
 - Animate class regions joining according to the trace.
 - Keep color regions, Hasse edges, points, and partition boundaries readable.
