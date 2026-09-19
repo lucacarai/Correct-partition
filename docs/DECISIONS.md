@@ -37,6 +37,11 @@ D-024 (accepted): Restore simple padded convex class contours and defer all
 overlap avoidance. This supersedes the separating-line behavior in D-023 and
 keeps the bubble renderer straightforward while animation work proceeds.
 
+D-025 (accepted): Deploy the static Vite build to GitHub Pages at
+`https://lucacarai.github.io/Correct-partition/` using a GitHub Actions
+workflow. Set Vite's base path to `/Correct-partition/` so generated asset URLs
+work from the project-site subpath.
+
 ## New decision template
 
 ```text
