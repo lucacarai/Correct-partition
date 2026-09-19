@@ -151,6 +151,7 @@ h2 {
   gap: 0.55rem;
 }
 .secondary-button,
+.primary-button,
 .text-button {
   min-height: 2.6rem;
   border-radius: 0.7rem;
@@ -163,6 +164,22 @@ h2 {
   color: #42423c;
   background: #fffefb;
 }
+.primary-button {
+  border: 1px solid #292a27;
+  color: #fffefb;
+  background: #292a27;
+}
+.primary-button:not(:disabled):hover {
+  background: #41423e;
+}
+.start-button {
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 750;
+  cursor: pointer;
+}
 .text-button {
   grid-column: 1 / -1;
   border: 0;
@@ -174,6 +191,7 @@ button:disabled {
   opacity: 0.42;
 }
 button:focus-visible,
+.speed-control select:focus-visible,
 .poset-point:focus-visible {
   outline: 3px solid #292a27;
   outline-offset: 3px;
@@ -254,6 +272,9 @@ button:focus-visible,
 .poset-point {
   cursor: pointer;
 }
+.poset-point[aria-disabled='true'] {
+  cursor: default;
+}
 .point-core {
   stroke: #292a27;
   stroke-width: 3.5;
@@ -278,6 +299,83 @@ button:focus-visible,
 }
 .preview-layer.preview-remove circle {
   stroke: #a43a3a;
+}
+.partition-layer {
+  pointer-events: none;
+}
+.partition-bubble-source {
+  fill: none;
+  stroke: #252622;
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+.trace-status {
+  display: grid;
+  gap: 0.8rem;
+}
+.trace-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+.trace-count strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.1rem;
+  font-weight: 500;
+}
+.trace-count span {
+  color: #77766e;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.trace-status progress {
+  width: 100%;
+  height: 0.45rem;
+  accent-color: #292a27;
+}
+.merge-explanation {
+  min-height: 7rem;
+  margin: 0;
+  padding: 1rem;
+  border-left: 3px solid #292a27;
+  border-radius: 0 0.7rem 0.7rem 0;
+  color: #51514b;
+  background: #f2f0e8;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+.partition-actions .primary-button {
+  min-height: 2.6rem;
+  border-radius: 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.partition-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.speed-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #64645d;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.speed-control select {
+  min-width: 5rem;
+  padding: 0.55rem 1.8rem 0.55rem 0.7rem;
+  border: 1px solid #d7d4ca;
+  border-radius: 0.65rem;
+  color: #33342f;
+  background: #fffefb;
+  cursor: pointer;
+}
+.trace-guide {
+  margin: 0;
 }
 @keyframes preview-dash {
   to {

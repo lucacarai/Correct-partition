@@ -53,13 +53,14 @@ color-preserving, and greatest, and that every trace frame is valid.
 Exit condition: the user can create every valid 3-coloring while the diagram
 always displays an isotone coloring.
 
-## Milestone 3: partition states and playback
+## Milestone 3: partition states and playback — complete
 
-- Compute the trace when the user starts the process.
-- Show the identity relation as one bubble around each point.
-- Add previous, next, play, pause, reset, and speed controls.
-- Render every static trace state before adding shape morphing.
-- Display a concise reason for each merge.
+- [x] Compute the trace when the user starts the process.
+- [x] Show the identity relation as one bubble around each point.
+- [x] Add previous, next, and reset controls.
+- [x] Add play, pause, and speed controls.
+- [x] Render every static trace state before adding shape morphing.
+- [x] Display a concise reason for each merge.
 
 Exit condition: every trace state is inspectable and matches the tested
 mathematical output.

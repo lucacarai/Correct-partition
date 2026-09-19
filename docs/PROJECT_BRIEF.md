@@ -34,12 +34,14 @@ classes merge while every intermediate state remains mathematically valid.
 
 - A Hasse diagram of the fixed finite poset.
 - Colored regions that visualize the three hue-upsets and their overlaps.
-- A visual representation of each equivalence class as a bubble.
+- A visual representation of each equivalence class as one closed
+  contour containing all of its points. Avoid overlaps where possible; allow
+  overlaps when separation would sacrifice a complete readable class bubble.
 - An animation from the identity relation to the greatest color-preserving
   correct partition.
 - A sequence of mathematically valid intermediate equivalence relations.
-- Optionally, a short explanation or witness for each merge; the exact content
-  remains to be defined.
+- An `Alpha merge` or `Beta merge` label for each merge, without an expanded
+  explanation.
 
 ## Interaction and animation
 
@@ -56,15 +58,29 @@ Known flow:
    and may identify only equally colored points.
 6. Stop at the greatest equivalence relation satisfying those conditions.
 
+The first partition-playback increment is manually inspectable: starting the
+process computes the tested trace and displays its identity frame, Previous and
+Next move through static frames, and Reset returns to the coloring editor.
+Coloring controls and point editing are unavailable while a computed trace is
+being inspected so that the displayed trace always corresponds to the visible
+coloring.
+
+Playback advances one trace frame every 1.2 seconds at the default `1x` speed.
+The available speeds are `0.5x`, `1x`, and `2x`. Previous and Next pause active
+playback before stepping, Pause leaves the current frame selected, and Play on
+the final frame restarts from the identity frame. Reset stops playback and
+returns to the unchanged coloring.
+
+Every class must remain a closed, connected region. Prefer non-overlapping
+bubbles, but allow overlap when necessary. No class-letter labels are shown.
+The current renderer separates convex class envelopes when a separating line
+leaves adequate space around every point; interleaved envelopes may overlap.
+
 Still to define:
 
 - Confirm the proposed closure-aware click behavior: clicking an excluded point
   adds its entire principal upset; clicking an included point removes its
   principal downset from the hue's upset.
-- Whether merges autoplay or advance on command.
-- Play, pause, previous, next, reset, and speed behavior.
-- The visual geometry of bubbles around non-adjacent points.
-- Editing behavior after a result has been computed.
 - Reduced-motion behavior.
 
 ## Scope boundaries

@@ -4,11 +4,11 @@ Read this file and the documents in `docs/` before making substantive changes.
 
 ## Current phase
 
-The project foundation, framework-independent mathematical core, and coloring
-editor are implemented and verified; Milestones 0, 1, and 2 are complete. The
-next work is Milestone 3: rendering partition states and playback of the tested
-alpha/beta trace. Continue to update the specifications when requirements are
-clarified.
+The project foundation, framework-independent mathematical core, coloring
+editor, and static trace playback are implemented and verified; Milestones 0,
+1, 2, and 3 are complete. The next work is Milestone 4: animating partition
+bubbles between the tested trace states. Continue to update the specifications
+when requirements are clarified.
 
 ## Working agreement
 

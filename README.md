@@ -6,10 +6,11 @@ correct partition.
 
 ## Status
 
-The React, TypeScript, and Vite foundation and the independently tested
-mathematical core are implemented. The project currently shows a minimal setup
-screen; the next milestone is the SVG diagram and coloring interface described
-in `docs/IMPLEMENTATION_PLAN.md`.
+The React, TypeScript, and Vite foundation, independently tested mathematical
+core, SVG coloring editor, and static trace playback are implemented. The
+application can inspect every alpha/beta trace state with merge explanations,
+manual stepping, and adjustable-speed playback. Milestone 3 is complete;
+animated bubble morphing is next.
 
 ## Local development
 

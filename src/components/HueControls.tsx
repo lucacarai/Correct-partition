@@ -10,6 +10,7 @@ interface HueControlsProps {
   readonly onUndo: () => void
   readonly onClearHue: () => void
   readonly onReset: () => void
+  readonly onStart: () => void
 }
 
 export function HueControls({
@@ -21,6 +22,7 @@ export function HueControls({
   onUndo,
   onClearHue,
   onReset,
+  onStart,
 }: HueControlsProps) {
   return (
     <aside className="control-panel" aria-labelledby="coloring-title">
@@ -85,6 +87,10 @@ export function HueControls({
           Reset all
         </button>
       </div>
+
+      <button className="primary-button start-button" onClick={onStart}>
+        Start partitioning
+      </button>
 
       <div className="mini-guide">
         <p>

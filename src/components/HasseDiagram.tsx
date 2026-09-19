@@ -20,6 +20,7 @@ import {
   DIAGRAM_HEIGHT,
   DIAGRAM_WIDTH,
   diagramPoint,
+  partitionContours,
 } from '../visual/geometry'
 import {
   HUE_COLORS,
@@ -27,11 +28,13 @@ import {
   HUE_REGION_COLORS,
   MIXED_COLORS,
 } from '../visual/palette'
+import type { Partition } from '../math/partition'
 
 interface HasseDiagramProps {
   readonly coloring: ThreeColoring<FixedElementId>
   readonly activeHue: Hue
   readonly onToggle: (element: FixedElementId) => void
+  readonly partition?: Partition<FixedElementId>
 }
 
 function accessibleColorName(
@@ -48,15 +51,16 @@ export function HasseDiagram({
   coloring,
   activeHue,
   onToggle,
+  partition,
 }: HasseDiagramProps) {
   const maskPrefix = useId().replaceAll(':', '')
   const [hovered, setHovered] = useState<FixedElementId | null>(null)
   const preview = useMemo(
     () =>
-      hovered
+      hovered && !partition
         ? affectedElementsForToggle(fixedPoset, coloring, activeHue, hovered)
         : new Set<FixedElementId>(),
-    [activeHue, coloring, hovered],
+    [activeHue, coloring, hovered, partition],
   )
   const previewRemoves = hovered ? coloring[activeHue].has(hovered) : false
   const minimalByHue = useMemo(
@@ -76,16 +80,32 @@ export function HasseDiagram({
       ) as Record<Hue, readonly { x: number; y: number }[]>,
     [coloring],
   )
+  const partitionShapes = useMemo(() => {
+    if (!partition) return []
+
+    const contours = partitionContours(
+      partition.blocks.map((block) => block.elements.map(diagramPoint)),
+    )
+    return partition.blocks.map((block, index) => ({
+      block,
+      index,
+      contour: contours[index]!,
+    }))
+  }, [partition])
 
   return (
     <section className="diagram-card" aria-labelledby="diagram-title">
       <div className="diagram-heading">
         <div>
           <p className="eyebrow">Fixed finite poset</p>
-          <h2 id="diagram-title">Build three upsets</h2>
+          <h2 id="diagram-title">
+            {partition ? 'Inspect the partition' : 'Build three upsets'}
+          </h2>
         </div>
         <p className="diagram-instruction">
-          Hover to preview · click to {previewRemoves ? 'remove' : 'add'}
+          {partition
+            ? `${partition.blocks.length} ${partition.blocks.length === 1 ? 'class' : 'classes'}`
+            : `Hover to preview · click to ${previewRemoves ? 'remove' : 'add'}`}
         </p>
       </div>
 
@@ -177,7 +197,7 @@ export function HasseDiagram({
             })}
           </g>
 
-          {hovered && (
+          {hovered && !partition && (
             <g
               className={`preview-layer ${previewRemoves ? 'preview-remove' : 'preview-add'}`}
               aria-hidden="true"
@@ -198,15 +218,19 @@ export function HasseDiagram({
                   className="poset-point"
                   key={element}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={partition ? -1 : 0}
+                  aria-disabled={partition ? true : undefined}
                   aria-label={`Point row ${location.row + 1}, column ${location.column + 1}; ${accessibleColorName(coloring, element)}`}
-                  onClick={() => onToggle(element)}
-                  onMouseEnter={() => setHovered(element)}
+                  onClick={() => !partition && onToggle(element)}
+                  onMouseEnter={() => !partition && setHovered(element)}
                   onMouseLeave={() => setHovered(null)}
-                  onFocus={() => setHovered(element)}
+                  onFocus={() => !partition && setHovered(element)}
                   onBlur={() => setHovered(null)}
                   onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
+                    if (
+                      !partition &&
+                      (event.key === 'Enter' || event.key === ' ')
+                    ) {
                       event.preventDefault()
                       onToggle(element)
                     }
@@ -241,6 +265,35 @@ export function HasseDiagram({
               )
             })}
           </g>
+
+          {partition && (
+            <g
+              className="partition-layer"
+              role="list"
+              aria-label={`Partition with ${partition.blocks.length} classes`}
+            >
+              {partitionShapes.map(({ block, contour, index }) => {
+                const positions = block.elements.map((element) => {
+                  const point = fixedPointById.get(element)!
+                  return `row ${point.row + 1}, column ${point.column + 1}`
+                })
+                return (
+                  <g
+                    className="partition-bubble"
+                    data-testid="partition-bubble"
+                    key={block.key}
+                    role="listitem"
+                    aria-label={`Class ${index + 1}: ${positions.join('; ')}`}
+                  >
+                    <polygon
+                      className="partition-bubble-source"
+                      points={contour.map(({ x, y }) => `${x},${y}`).join(' ')}
+                    />
+                  </g>
+                )
+              })}
+            </g>
+          )}
         </svg>
       </div>
     </section>

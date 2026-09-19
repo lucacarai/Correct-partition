@@ -62,3 +62,15 @@ Draw from back to front:
 
 The coloring and equivalence-class layers express different mathematics and
 must remain visually distinguishable throughout the animation.
+
+## Partition bubbles
+
+- Each equivalence class starts from a padded merged contour around all of its
+  points.
+- Every class remains one closed, connected contour, with no clipping masks
+  or filter-generated outlines.
+- Separate whole class envelopes where possible while preserving space around
+  every member point. Allow overlap for interleaved envelopes rather than
+  splitting a class or leaving an open outline.
+- Use no class-letter labels.
+- The current merge label states only `Alpha merge` or `Beta merge`.
