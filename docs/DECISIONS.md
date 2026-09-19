@@ -33,6 +33,10 @@ all overlaps. Use whole-class separating lines to trim excess padding where
 possible; allow overlap for interleaved convex envelopes. This supersedes D-022.
 No SVG clipping masks or morphological filters are used for partition outlines.
 
+D-024 (accepted): Restore simple padded convex class contours and defer all
+overlap avoidance. This supersedes the separating-line behavior in D-023 and
+keeps the bubble renderer straightforward while animation work proceeds.
+
 ## New decision template
 
 ```text

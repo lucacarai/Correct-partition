@@ -69,8 +69,7 @@ must remain visually distinguishable throughout the animation.
   points.
 - Every class remains one closed, connected contour, with no clipping masks
   or filter-generated outlines.
-- Separate whole class envelopes where possible while preserving space around
-  every member point. Allow overlap for interleaved envelopes rather than
-  splitting a class or leaving an open outline.
+- Do not clip or separate class contours to avoid overlap for now; overlapping
+  bubbles are acceptable.
 - Use no class-letter labels.
 - The current merge label states only `Alpha merge` or `Beta merge`.

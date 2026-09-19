@@ -34,9 +34,8 @@ classes merge while every intermediate state remains mathematically valid.
 
 - A Hasse diagram of the fixed finite poset.
 - Colored regions that visualize the three hue-upsets and their overlaps.
-- A visual representation of each equivalence class as one closed
-  contour containing all of its points. Avoid overlaps where possible; allow
-  overlaps when separation would sacrifice a complete readable class bubble.
+- A visual representation of each equivalence class as one closed, padded
+  contour containing all of its points. Bubble overlap is acceptable for now.
 - An animation from the identity relation to the greatest color-preserving
   correct partition.
 - A sequence of mathematically valid intermediate equivalence relations.
@@ -71,10 +70,9 @@ playback before stepping, Pause leaves the current frame selected, and Play on
 the final frame restarts from the identity frame. Reset stops playback and
 returns to the unchanged coloring.
 
-Every class must remain a closed, connected region. Prefer non-overlapping
-bubbles, but allow overlap when necessary. No class-letter labels are shown.
-The current renderer separates convex class envelopes when a separating line
-leaves adequate space around every point; interleaved envelopes may overlap.
+Every class remains a closed, connected region. The current renderer uses a
+simple padded convex contour for each class and does not attempt to prevent
+overlap. No class-letter labels are shown.
 
 Still to define:
 
