@@ -7,6 +7,7 @@ import { PosetControls } from './components/PosetControls'
 import {
   clearHue,
   createEmptyColoring,
+  createRandomColoring,
   HUES,
   toggleHueAtElement,
   type Hue,
@@ -14,6 +15,7 @@ import {
 } from './math/coloring'
 import {
   createLayeredPoset,
+  createRandomLayeredPosetShape,
   DEFAULT_LAYER_COUNT,
   DEFAULT_MIDDLE_LAYERS,
   type PosetElementId,
@@ -111,6 +113,13 @@ function App() {
     clearWorkForNewPoset()
   }
 
+  const randomizePoset = () => {
+    const shape = createRandomLayeredPosetShape()
+    setLayerCount(shape.layerCount)
+    setMiddleLayers(shape.middleLayers)
+    clearWorkForNewPoset()
+  }
+
   const loadShareCode = (code: string): string | null => {
     try {
       const decoded = decodeWorkspace(code)
@@ -193,6 +202,7 @@ function App() {
             onLayerCountChange={changeLayerCount}
             onDone={() => setIsEditingPoset(false)}
             onRestoreDefault={restoreDefaultPoset}
+            onRandomize={randomizePoset}
           />
         ) : (
           <HueControls
@@ -211,6 +221,7 @@ function App() {
               commit(clearHue(model.poset, coloring, activeHue))
             }
             onReset={() => commit(createEmptyColoring<PosetElementId>())}
+            onRandomize={() => commit(createRandomColoring(model.poset))}
             onStart={() => {
               const nextTrace = computeReductionTrace(model.poset, coloring)
               setTrace(nextTrace)

@@ -208,11 +208,22 @@ h2 {
 .poset-editing-hint {
   line-height: 1.45;
 }
+.control-actions .text-button {
+  grid-column: auto;
+}
 .text-button {
   grid-column: 1 / -1;
   border: 0;
   color: #6e6d65;
   background: transparent;
+}
+.poset-secondary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.poset-secondary-actions .text-button {
+  grid-column: auto;
 }
 button:disabled {
   cursor: not-allowed;

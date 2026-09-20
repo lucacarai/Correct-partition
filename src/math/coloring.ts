@@ -47,6 +47,23 @@ export function createEmptyColoring<Element>(): ThreeColoring<Element> {
   }
 }
 
+export function createRandomColoring<Element>(
+  poset: FinitePoset<Element>,
+  random: () => number = Math.random,
+): ThreeColoring<Element> {
+  const generatorProbability = Math.min(0.25, 2 / poset.elements.length)
+  const randomUpset = () =>
+    poset.upwardClosure(
+      poset.elements.filter(() => random() < generatorProbability),
+    )
+
+  return createThreeColoring(poset, {
+    1: randomUpset(),
+    2: randomUpset(),
+    3: randomUpset(),
+  })
+}
+
 export function createColoringFromMinimalElements<Element>(
   poset: FinitePoset<Element>,
   generators: Readonly<Record<Hue, Iterable<Element>>>,

@@ -49,6 +49,7 @@ color-preserving, and greatest, and that every trace frame is valid.
 - [x] Verify the responsive desktop rendering in a real browser and cover the
       pointer, keyboard, undo, clear, independent-hue, and closure behaviors in
       automated tests.
+- [x] Add undoable random coloring and weighted random-poset controls.
 
 Exit condition: the user can create every valid 3-coloring while the diagram
 always displays an isotone coloring.

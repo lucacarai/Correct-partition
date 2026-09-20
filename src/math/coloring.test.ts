@@ -6,6 +6,7 @@ import {
   colorOf,
   createColoringFromMinimalElements,
   createEmptyColoring,
+  createRandomColoring,
   createThreeColoring,
   haveSameColor,
   isUpset,
@@ -24,6 +25,19 @@ describe('three-hue coloring', () => {
 
     expect(coloring[1]).toEqual(new Set())
     expect(coloring[2]).toEqual(coloring[3])
+  })
+
+  it('creates random hue sets as valid upsets', () => {
+    let state = 12345
+    const random = () => {
+      state = (state * 16807) % 2147483647
+      return (state - 1) / 2147483646
+    }
+    const coloring = createRandomColoring(fixedPoset, random)
+
+    for (const hue of [1, 2, 3] as const) {
+      expect(isUpset(fixedPoset, coloring[hue])).toBe(true)
+    }
   })
 
   it('adds the full principal upset when an excluded point is clicked', () => {

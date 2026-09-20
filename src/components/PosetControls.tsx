@@ -1,10 +1,11 @@
-import { MAX_LAYER_COUNT } from '../math/layeredPoset'
+import { MAX_LAYER_COUNT, MIN_LAYER_COUNT } from '../math/layeredPoset'
 
 interface PosetControlsProps {
   readonly layerCount: number
   readonly onLayerCountChange: (layerCount: number) => void
   readonly onDone: () => void
   readonly onRestoreDefault: () => void
+  readonly onRandomize: () => void
 }
 
 export function PosetControls({
@@ -12,6 +13,7 @@ export function PosetControls({
   onLayerCountChange,
   onDone,
   onRestoreDefault,
+  onRandomize,
 }: PosetControlsProps) {
   return (
     <aside className="control-panel" aria-labelledby="poset-editor-title">
@@ -19,8 +21,8 @@ export function PosetControls({
         <p className="eyebrow">Poset editor</p>
         <h2 id="poset-editor-title">Shape the diagram</h2>
         <p className="control-copy">
-          Choose between 2 and {MAX_LAYER_COUNT} layers, then click a middle
-          position in the diagram to add or remove its point.
+          Choose between {MIN_LAYER_COUNT} and {MAX_LAYER_COUNT} layers, then
+          click a middle position in the diagram to add or remove its point.
         </p>
       </div>
 
@@ -29,7 +31,7 @@ export function PosetControls({
         <input
           aria-label="Number of layers"
           type="number"
-          min="2"
+          min={MIN_LAYER_COUNT}
           max={MAX_LAYER_COUNT}
           step="1"
           key={layerCount}
@@ -43,7 +45,7 @@ export function PosetControls({
             }
             if (
               Number.isSafeInteger(next) &&
-              next >= 2 &&
+              next >= MIN_LAYER_COUNT &&
               next <= MAX_LAYER_COUNT
             ) {
               onLayerCountChange(next)
@@ -51,7 +53,7 @@ export function PosetControls({
           }}
           onBlur={(event) => {
             const next = Number(event.currentTarget.value)
-            if (!Number.isSafeInteger(next) || next < 2) {
+            if (!Number.isSafeInteger(next) || next < MIN_LAYER_COUNT) {
               event.currentTarget.value = String(layerCount)
             }
           }}
@@ -65,9 +67,14 @@ export function PosetControls({
       <button className="primary-button start-button" onClick={onDone}>
         Done changing poset
       </button>
-      <button className="text-button" onClick={onRestoreDefault}>
-        Restore default poset
-      </button>
+      <div className="poset-secondary-actions">
+        <button className="secondary-button" onClick={onRandomize}>
+          Random poset
+        </button>
+        <button className="text-button" onClick={onRestoreDefault}>
+          Restore default
+        </button>
+      </div>
     </aside>
   )
 }

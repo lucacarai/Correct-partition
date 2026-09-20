@@ -72,6 +72,14 @@ merge labels after the user initiates Replay or manually navigates with Previous
 or Next, so the immediate result is presented without implying a displayed
 transition.
 
+D-031 (accepted): Generate random poset lengths with an exponential weight
+`exp(-|L - 9| / 4)`, making 9 the unique most likely length while probabilities
+decrease gradually in both directions. Select every optional middle point
+independently with probability `1/3`. Generate each random hue by sampling an
+expected two candidate generators (capped at probability `1/4` per element)
+and taking their upward closure. Random coloring is undoable; randomizing the
+poset clears coloring, undo, and trace state like every structural edit.
+
 ## New decision template
 
 ```text

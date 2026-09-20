@@ -20,10 +20,51 @@ export interface LayeredPoset {
 }
 
 export const DEFAULT_LAYER_COUNT = 9
+export const MIN_LAYER_COUNT = 2
 export const MAX_LAYER_COUNT = 30
 export const DEFAULT_MIDDLE_LAYERS: ReadonlySet<number> = new Set([
   0, 1, 4, 6, 8,
 ])
+
+export interface LayeredPosetShape {
+  readonly layerCount: number
+  readonly middleLayers: ReadonlySet<number>
+}
+
+const RANDOM_LAYER_DISTANCE_SCALE = 4
+export const RANDOM_MIDDLE_POINT_PROBABILITY = 1 / 3
+
+export function createRandomLayeredPosetShape(
+  random: () => number = Math.random,
+): LayeredPosetShape {
+  const choices = Array.from(
+    { length: MAX_LAYER_COUNT - MIN_LAYER_COUNT + 1 },
+    (_, index) => MIN_LAYER_COUNT + index,
+  )
+  const weights = choices.map((layerCount) =>
+    Math.exp(
+      -Math.abs(layerCount - DEFAULT_LAYER_COUNT) / RANDOM_LAYER_DISTANCE_SCALE,
+    ),
+  )
+  const totalWeight = weights.reduce((total, weight) => total + weight, 0)
+  let threshold = random() * totalWeight
+  let layerCount = choices.at(-1)!
+
+  for (let index = 0; index < choices.length; index += 1) {
+    threshold -= weights[index]!
+    if (threshold < 0) {
+      layerCount = choices[index]!
+      break
+    }
+  }
+
+  const middleLayers = new Set<number>([0, 1])
+  for (let layer = 2; layer < layerCount; layer += 1) {
+    if (random() < RANDOM_MIDDLE_POINT_PROBABILITY) middleLayers.add(layer)
+  }
+
+  return { layerCount, middleLayers }
+}
 
 function pointId(row: number, column: PosetColumn): PosetElementId {
   return `r${row}c${column}`
@@ -49,11 +90,11 @@ export function createLayeredPoset(
 ): LayeredPoset {
   if (
     !Number.isSafeInteger(layerCount) ||
-    layerCount < 2 ||
+    layerCount < MIN_LAYER_COUNT ||
     layerCount > MAX_LAYER_COUNT
   ) {
     throw new Error(
-      `A layered poset must have between 2 and ${MAX_LAYER_COUNT} layers`,
+      `A layered poset must have between ${MIN_LAYER_COUNT} and ${MAX_LAYER_COUNT} layers`,
     )
   }
 

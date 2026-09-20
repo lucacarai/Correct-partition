@@ -136,6 +136,59 @@ describe('coloring editor', () => {
     expect(bottomLeft).toHaveAccessibleName(/no hues/i)
   })
 
+  it('generates an undoable random coloring', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
+    try {
+      const user = userEvent.setup()
+      render(<App />)
+
+      await user.click(screen.getByRole('button', { name: /random coloring/i }))
+      expect(
+        screen.getByRole('button', {
+          name: /point row 9, column 1; blue, red, yellow/i,
+        }),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Undo' }))
+      expect(
+        screen.getByRole('button', {
+          name: /point row 9, column 1; no hues/i,
+        }),
+      ).toBeInTheDocument()
+    } finally {
+      random.mockRestore()
+    }
+  })
+
+  it('generates a random poset and clears the current coloring', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
+    try {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.click(
+        screen.getByRole('button', {
+          name: /point row 3, column 1; no hues/i,
+        }),
+      )
+      await user.click(screen.getByRole('button', { name: /change poset/i }))
+      await user.click(screen.getByRole('button', { name: /random poset/i }))
+
+      expect(
+        screen.getByRole('spinbutton', { name: /number of layers/i }),
+      ).toHaveValue(2)
+      await user.click(
+        screen.getByRole('button', { name: /done changing poset/i }),
+      )
+      expect(
+        screen.getByRole('button', {
+          name: /point row 2, column 1; no hues/i,
+        }),
+      ).toBeInTheDocument()
+    } finally {
+      random.mockRestore()
+    }
+  })
+
   it('loads a shared poset and coloring code', async () => {
     const user = userEvent.setup()
     const sharedModel = createLayeredPoset(5, [2])

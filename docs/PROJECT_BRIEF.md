@@ -26,6 +26,9 @@ classes merge while every intermediate state remains mathematically valid.
   of layers and clicks optional middle positions in the diagram to add or remove
   those points. Structural changes clear the current coloring, undo history,
   and computed trace.
+- The structure editor offers a random poset. Its layer-count distribution has
+  a smooth peak at 9 and decreases exponentially with distance from 9; every
+  optional middle point is then selected independently with probability `1/3`.
 - The coloring panel displays a versioned, URL-safe share code encoding the
   layer count, optional middle layers, and minimal generators of all three hue
   upsets. The user can copy this code or paste and load another one. Loading a
@@ -36,6 +39,9 @@ classes merge while every intermediate state remains mathematically valid.
   an antichain and provide the canonical stored representation.
 - A hue's upset may be empty, and two or all three hues may have identical
   upsets.
+- The coloring editor offers an undoable random coloring of the current poset.
+  For each hue it samples candidate minimal generators and takes their upward
+  closure, so the result always remains a valid coloring.
 - Hue `1` is blue, hue `2` is red, and hue `3` is yellow.
 - Each hue colors a spatial region around its upset, not just the interiors of
   its points. Overlapping regions mix their colors as specified in

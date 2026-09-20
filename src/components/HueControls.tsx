@@ -11,6 +11,7 @@ interface HueControlsProps {
   readonly onUndo: () => void
   readonly onClearHue: () => void
   readonly onReset: () => void
+  readonly onRandomize: () => void
   readonly onStart: () => void
   readonly onChangePoset: () => void
   readonly shareCode: string
@@ -26,6 +27,7 @@ export function HueControls({
   onUndo,
   onClearHue,
   onReset,
+  onRandomize,
   onStart,
   onChangePoset,
   shareCode,
@@ -85,6 +87,9 @@ export function HueControls({
           disabled={activeHueIsEmpty}
         >
           Clear {HUE_NAMES[activeHue].toLowerCase()}
+        </button>
+        <button className="text-button" onClick={onRandomize}>
+          Random coloring
         </button>
         <button
           className="text-button"
