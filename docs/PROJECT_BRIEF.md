@@ -80,6 +80,8 @@ The first partition-playback increment is manually inspectable: `Compute correct
 partition` computes the tested trace and immediately displays its final frame.
 Previous and Next move through static frames, Replay starts playback from the
 identity frame, and Reset returns to the coloring editor.
+The Left and Right arrow keys mirror Previous and Next while the trace page is
+active. Pressing either arrow during playback pauses before moving one frame.
 The merge-explanation box is initially blank on the computed final frame. After
 the user first presses Replay, Previous, or Next, it resumes displaying the
 Identity, Alpha merge, and Beta merge labels for the selected trace frames.

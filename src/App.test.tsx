@@ -40,10 +40,15 @@ describe('coloring editor', () => {
     await user.clear(
       screen.getByRole('spinbutton', { name: /number of layers/i }),
     )
-    await user.type(
-      screen.getByRole('spinbutton', { name: /number of layers/i }),
-      '5',
-    )
+    const layerCountInput = screen.getByRole('spinbutton', {
+      name: /number of layers/i,
+    })
+    await user.type(layerCountInput, '12')
+    expect(layerCountInput).toHaveFocus()
+    expect(layerCountInput).toHaveValue(12)
+
+    await user.clear(layerCountInput)
+    await user.type(layerCountInput, '5')
     expect(
       screen.getByRole('group', {
         name: /interactive hasse diagram with 11 points and 5 layers/i,
@@ -243,6 +248,26 @@ describe('coloring editor', () => {
 })
 
 describe('partition trace', () => {
+  it('steps with arrow keys and pauses active playback', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(
+      screen.getByRole('button', { name: /compute correct partition/i }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Replay' }))
+    expect(screen.getByRole('heading', { name: 'Step 1 of 21' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' })
+    expect(screen.getByRole('heading', { name: 'Step 2 of 21' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+
+    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    expect(screen.getByRole('heading', { name: 'Step 1 of 21' })).toBeVisible()
+    expect(screen.getByText(/identity relation/i)).toBeInTheDocument()
+  })
+
   it('renders every tested trace frame and supports manual inspection', async () => {
     const user = userEvent.setup()
     const expected = computeReductionTrace(

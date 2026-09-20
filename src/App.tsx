@@ -74,6 +74,34 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [frameIndex, isPlaying, playbackSpeed, trace])
 
+  useEffect(() => {
+    if (!trace) return
+
+    const handleArrowStep = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLSelectElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      setIsPlaying(false)
+      setShowTraceExplanation(true)
+      setFrameIndex((index) =>
+        event.key === 'ArrowLeft'
+          ? Math.max(0, index - 1)
+          : Math.min(trace.partitions.length - 1, index + 1),
+      )
+    }
+
+    window.addEventListener('keydown', handleArrowStep)
+    return () => window.removeEventListener('keydown', handleArrowStep)
+  }, [trace])
+
   const commit = (next: ThreeColoring<PosetElementId>) => {
     setHistory((past) => [...past, coloring])
     setColoring(next)
@@ -118,6 +146,7 @@ function App() {
     setLayerCount(shape.layerCount)
     setMiddleLayers(shape.middleLayers)
     clearWorkForNewPoset()
+    return shape.layerCount
   }
 
   const loadShareCode = (code: string): string | null => {

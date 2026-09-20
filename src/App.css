@@ -431,6 +431,9 @@ button:focus-visible,
 .partition-actions {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+.partition-actions .text-button {
+  grid-column: 2;
+}
 .speed-control {
   display: flex;
   align-items: center;
